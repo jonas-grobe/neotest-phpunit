@@ -264,14 +264,12 @@ setmetatable(NeotestAdapter, {
         return opts.env
       end
     end
-    if is_callable(opts.results_path) then
-      config.get_results_path = opts.results_path
-    elseif type(opts.results_path) == "table" then
-      config.get_results_path = function()
-        return opts.results_path
-      end
+    config.get_results_path = function()
+      return opts.results_path
     end
-    config.get_path_mapper = opts.path_mapper
+    config.get_path_mapper = function()
+      return opts.path_mapper
+    end
     if type(opts.dap) == "table" then
       dap_configuration = opts.dap
     end
