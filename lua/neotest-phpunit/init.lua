@@ -145,7 +145,7 @@ end
 ---@return neotest.RunSpec | nil
 function NeotestAdapter.build_spec(args)
   local position = args.tree:data()
-  local results_path = async.fn.tempname()
+  local results_path = config.get_results_path()
   local program = config.get_phpunit_cmd()
 
   local script_args = {
@@ -212,8 +212,15 @@ function NeotestAdapter.results(test, result, tree)
     return {}
   end
 
-  logger.trace("Results:", results)
-  return results
+  local map_path = config.get_path_mapper()
+  local mapped_results = {}
+  for key, result in pairs(results) do
+    local mapped_key = map_path(key)
+    mapped_results[mapped_key] = result
+  end
+
+  logger.trace("Results:", mapped_results)
+  return mapped_results
 end
 
 local is_callable = function(obj)
@@ -257,6 +264,14 @@ setmetatable(NeotestAdapter, {
         return opts.env
       end
     end
+    if is_callable(opts.results_path) then
+      config.get_results_path = opts.results_path
+    elseif type(opts.results_path) == "table" then
+      config.get_results_path = function()
+        return opts.results_path
+      end
+    end
+    config.get_path_mapper = opts.path_mapper
     if type(opts.dap) == "table" then
       dap_configuration = opts.dap
     end

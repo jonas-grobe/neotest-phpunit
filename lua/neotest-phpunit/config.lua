@@ -20,4 +20,18 @@ M.get_filter_dirs = function()
   return { ".git", "node_modules" }
 end
 
+M.get_results_path = function()
+  local ok, async = pcall(require, "nio")
+  if not ok then
+    async = require("neotest.async")
+  end
+  return async.fn.tempname()
+end
+
+M.get_path_mapper = function()
+  return function(path)
+    return path
+  end
+end
+
 return M
